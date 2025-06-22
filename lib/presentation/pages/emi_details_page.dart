@@ -378,7 +378,7 @@ class _EmiDetailsPageState extends ConsumerState<EmiDetailsPage> {
     required double principalAmount,
     required double interestAmount,
     required double totalAmount,
-    required DateTime startDate, // Use start date from EMI details
+    required DateTime startDate,
   }) {
     List<AmortizationEntry> schedule = [];
     DateTime paymentDate = startDate;
@@ -386,12 +386,24 @@ class _EmiDetailsPageState extends ConsumerState<EmiDetailsPage> {
     double monthlyInterestRate = interestAmount / (12 * 100);
     int totalMonths = tenureYears * 12;
 
-    double monthlyEmi = GlobalFormatter.roundNumber(
+    // Handle invalid or 0% interest cases
+    if (principalAmount <= 0 || totalMonths <= 0) {
+      // No schedule for invalid data
+      return [];
+    }
+
+    double monthlyEmi;
+    if (monthlyInterestRate == 0) {
+      monthlyEmi = principalAmount / totalMonths;
+    } else {
+      monthlyEmi = GlobalFormatter.roundNumber(
         ref,
         (principalAmount *
                 monthlyInterestRate *
                 pow(1 + monthlyInterestRate, totalMonths)) /
-            (pow(1 + monthlyInterestRate, totalMonths) - 1));
+            (pow(1 + monthlyInterestRate, totalMonths) - 1),
+      );
+    }
 
     double remainingPrincipal = principalAmount;
 
@@ -400,6 +412,13 @@ class _EmiDetailsPageState extends ConsumerState<EmiDetailsPage> {
           ref, remainingPrincipal * monthlyInterestRate);
       double monthlyPrincipal =
           GlobalFormatter.roundNumber(ref, monthlyEmi - monthlyInterest);
+
+      // Clamp last payment to avoid negative principal due to rounding
+      if (month == totalMonths - 1) {
+        monthlyPrincipal = remainingPrincipal;
+        monthlyEmi = monthlyPrincipal + monthlyInterest;
+      }
+
       remainingPrincipal = GlobalFormatter.roundNumber(
           ref, remainingPrincipal - monthlyPrincipal);
 

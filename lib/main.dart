@@ -144,6 +144,24 @@ class MainAppContent extends ConsumerWidget {
         ],
         localizationsDelegates: const [
           AppLocalizations.delegate,
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,

@@ -58,11 +58,17 @@ class EmisNotifier extends _$EmisNotifier {
     // Calculate total number of monthly payments
     int totalPayments = tenureYears * 12;
 
-    // Calculate EMI using the standard formula
-    double emi = principal *
-        monthlyRate *
-        pow(1 + monthlyRate, totalPayments) /
-        (pow(1 + monthlyRate, totalPayments) - 1);
+    double emi;
+    if (monthlyRate == 0) {
+      // 0% interest: simple division
+      emi = principal / totalPayments;
+    } else {
+      // Calculate EMI using the standard formula
+      emi = principal *
+          monthlyRate *
+          pow(1 + monthlyRate, totalPayments) /
+          (pow(1 + monthlyRate, totalPayments) - 1);
+    }
 
     return emi;
   }
